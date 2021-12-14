@@ -10,11 +10,11 @@ import dash_bootstrap_components as dbc
 from hashlib import sha256
 from aoc_scoreboard import AOCScoreboard
 import plotly.express as px
-from dash_bootstrap_templates import load_figure_template
+#from dash_bootstrap_templates import load_figure_template
 
-my_template = 'cosmo'
+my_template = 'plotly_white'
 
-load_figure_template(my_template)
+#load_figure_template(my_template)
 
 from layout import layout
 
