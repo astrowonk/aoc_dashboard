@@ -35,8 +35,8 @@ main_interface = html.Div([
                 ],
                 style={
                     #     'width': '100%',
-                    'height': '80px',
-                    #     'lineHeight': '70px',
+                    'height': '50px',
+                    'lineHeight': '20px',
                     'borderWidth': '1px',
                     'borderStyle': 'dashed',
                     'borderRadius': '15px',
