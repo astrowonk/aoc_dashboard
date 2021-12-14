@@ -22,7 +22,7 @@ app = dash.Dash(
     external_stylesheets=[dbc.themes.COSMO],
     prevent_initial_callbacks=True,
     suppress_callback_exceptions=True,
-    url_base_pathname='/aoc/',  #change this to a config
+    url_base_pathname='/dash/aoc/',  #change this to a config
     title='AOC Dashboard',
     meta_tags=[{
         'name': 'description',
