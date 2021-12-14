@@ -8,6 +8,11 @@ from aoc_scoreboard import AOCScoreboard
 import plotly.express as px
 #from dash_bootstrap_templates import load_figure_template
 
+try:
+    import config
+except ImportError:
+    import default_config as config
+
 my_template = 'plotly_white'
 
 #alas having server issues with the bootstrap templates, disabling for now.
@@ -20,7 +25,7 @@ app = dash.Dash(
     external_stylesheets=[dbc.themes.COSMO],
     prevent_initial_callbacks=True,
     suppress_callback_exceptions=True,
-    url_base_pathname='/dash/aoc/',  #change this to a config
+    url_base_pathname=config.base_url,
     title='AOC Dashboard',
     meta_tags=[{
         'name': 'description',
@@ -55,44 +60,47 @@ def update_output(content, name):
         return dash.no_update
 
 
-@app.callback(
-    [
-        Output('line-graph-div', 'children'),
-        Output('daily-leaderboard-div', 'children'),
-    ],
-    Input('leaderboard-data', 'data'),
-)
-def update_output(data):
-    if data:
-        aoc = AOCScoreboard(json_dict=data)
-        heatmap = px.imshow(
-            aoc.make_daily_leaderboard(show_possibles=False).drop(
-                columns=['Total']).fillna(0),
-            labels={'color': 'Points'},
-            template=my_template,
-        )
+@app.callback([
+    Output('line-graph-div', 'children'),
+    Output('daily-leaderboard-div', 'children'),
+], Input('leaderboard-data', 'data'),
+              Input('server-storage-interval', 'n_intervals'))
+def update_output(data_uploaded, interval):
 
-        leaderboard_table = dbc.Table.from_dataframe(
-            aoc.make_daily_leaderboard().reset_index(),
-            striped=True,
-            bordered=True,
-            hover=True,
-        )
-
-        leaderboard_table_row = dbc.Row(
-            [html.H3('Leaderboard Table By Day'), leaderboard_table])
-        leaderboard_heatmap_row = dbc.Row([
-            html.H3('Points by Day Heatmap'),
-            dcc.Graph(figure=heatmap),
-        ])
-
-        return [
-            dcc.Graph(figure=aoc.line_graph()),
-            dbc.Col([leaderboard_table_row, leaderboard_heatmap_row],
-                    style={'padding': '20px'})
-        ]
+    if config.server_mode == 'upload' and data_uploaded:
+        data = data_uploaded
+    elif config.server_mode == 'local':
+        data = json.loads(open(config.json_file).read())
     else:
         return dash.no_update
+
+    aoc = AOCScoreboard(json_dict=data)
+    heatmap = px.imshow(
+        aoc.make_daily_leaderboard(show_possibles=False).drop(
+            columns=['Total']).fillna(0),
+        labels={'color': 'Points'},
+        template=my_template,
+    )
+
+    leaderboard_table = dbc.Table.from_dataframe(
+        aoc.make_daily_leaderboard().reset_index(),
+        striped=True,
+        bordered=True,
+        hover=True,
+    )
+
+    leaderboard_table_row = dbc.Row(
+        [html.H3('Leaderboard Table By Day'), leaderboard_table])
+    leaderboard_heatmap_row = dbc.Row([
+        html.H3('Points by Day Heatmap'),
+        dcc.Graph(figure=heatmap),
+    ])
+
+    return [
+        dcc.Graph(figure=aoc.line_graph()),
+        dbc.Col([leaderboard_table_row, leaderboard_heatmap_row],
+                style={'padding': '20px'})
+    ]
 
 
 if __name__ == '__main__':
