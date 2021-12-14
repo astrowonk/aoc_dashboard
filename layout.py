@@ -43,7 +43,10 @@ main_interface = html.Div([
                     'margin': '10px'
                 },
                 #  Allow multiple files to be uploaded
-                multiple=False)
+                multiple=False,
+                max_size=
+                1.5E6  #1.5MB I think, this is based on the practical limits of dcc.Store, files should be well under this
+            )
         ])
     ]),
 ])
