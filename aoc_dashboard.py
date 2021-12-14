@@ -1,18 +1,16 @@
 import base64
 import json
-import io
-import pandas as pd
 import dash
 from dash.dependencies import Input, Output, State
 from dash import html, dcc
 import dash_bootstrap_components as dbc
-from hashlib import sha256
 from aoc_scoreboard import AOCScoreboard
 import plotly.express as px
 #from dash_bootstrap_templates import load_figure_template
 
 my_template = 'plotly_white'
 
+#alas having server issues with the bootstrap templates, disabling for now.
 #load_figure_template(my_template)
 
 from layout import layout
