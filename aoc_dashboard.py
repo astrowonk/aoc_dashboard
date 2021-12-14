@@ -4,8 +4,7 @@ import io
 import pandas as pd
 import dash
 from dash.dependencies import Input, Output, State
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import html, dcc
 import dash_bootstrap_components as dbc
 from hashlib import sha256
 from aoc_scoreboard import AOCScoreboard
