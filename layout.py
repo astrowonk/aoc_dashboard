@@ -55,7 +55,7 @@ else:
 
 main_interface = html.Div([
     dcc.Markdown(main_text, style=markdown_style),
-    upload_widget,
+    html.Div(upload_widget, id='server-status'),
     html.Div([html.Div([])]),
 ])
 

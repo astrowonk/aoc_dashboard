@@ -6,6 +6,8 @@ from dash import html, dcc
 import dash_bootstrap_components as dbc
 from aoc_scoreboard import AOCScoreboard
 import plotly.express as px
+from os.path import getmtime
+import datetime
 #from dash_bootstrap_templates import load_figure_template
 
 try:
@@ -63,16 +65,32 @@ def update_output(content, name):
 @app.callback([
     Output('line-graph-div', 'children'),
     Output('daily-leaderboard-div', 'children'),
+    Output('server-status', 'children'),
 ], Input('leaderboard-data', 'data'),
               Input('server-storage-interval', 'n_intervals'))
 def update_output(data_uploaded, interval):
-
+    file_mod_time = None
+    ctx = dash.callback_context
+    an_id = ctx.triggered[0]['prop_id'].split('.')[0]
+    ## should not refresh to check local storage if in upload mode
+    if config.server_mode == 'upload' and an_id == 'server-storage-interval':
+        return dash.no_update, dash.no_update
     if config.server_mode == 'upload' and data_uploaded:
         data = data_uploaded
     elif config.server_mode == 'local':
         data = json.loads(open(config.json_file).read())
+        file_mod_time = datetime.datetime.fromtimestamp(
+            getmtime(config.json_file))
     else:
         return dash.no_update
+
+    if file_mod_time:
+        mytimestring = file_mod_time.strftime('%Y-%m-%d %H:%M:%S')
+        server_status = dcc.Markdown(
+            f"Server-side JSON last updated: {mytimestring}")
+    elif config.server_mode == 'upload':
+        server_status = dcc.Markdown(
+            "Drag and drop or select a JSON file here to upload.")
 
     aoc = AOCScoreboard(json_dict=data)
     heatmap = px.imshow(
@@ -99,7 +117,7 @@ def update_output(data_uploaded, interval):
     return [
         dcc.Graph(figure=aoc.line_graph()),
         dbc.Col([leaderboard_table_row, leaderboard_heatmap_row],
-                style={'padding': '20px'})
+                style={'padding': '20px'}), server_status
     ]
 
 
