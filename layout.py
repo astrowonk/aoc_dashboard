@@ -80,7 +80,9 @@ layout = dbc.Container([
     main_interface,
     dbc.Row(dbc.Col((tabs))),
     html.Div(id='dummy'),
-    dcc.Interval(id='server-storage-interval',
-                 interval=1000 * 60,
-                 n_intervals=0),
+    dcc.Interval(
+        id='server-storage-interval',
+        # 5 minutes
+        interval=1000 * 60 * 5,
+        n_intervals=0),
 ])
