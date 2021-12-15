@@ -71,7 +71,7 @@ time_between_stars = html.Div(id='time-between-stars-div')
 tabs = dbc.Tabs([
     dbc.Tab(daily_leadboard_content, label='Daily Leaderboard'),
     dbc.Tab(line_graph_tab_content, label='Line Graph'),
-    dbc.Tab(time_between_stars, label='Time Between Stars'),
+    dbc.Tab(time_between_stars, label='Minutes Between Stars'),
     dbc.Tab(about_tab_content, label="About"),
 ])
 
