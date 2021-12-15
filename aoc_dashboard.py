@@ -66,6 +66,7 @@ def update_output(content, name):
     Output('line-graph-div', 'children'),
     Output('daily-leaderboard-div', 'children'),
     Output('server-status', 'children'),
+    Output('time-between-stars-div', 'children')
 ], Input('leaderboard-data', 'data'),
               Input('server-storage-interval', 'n_intervals'))
 def update_output(data_uploaded, interval):
@@ -106,6 +107,39 @@ def update_output(data_uploaded, interval):
         bordered=True,
         hover=True,
     )
+    df = aoc.minutes_between_stars().round(2).reset_index()
+
+    df.index.name = 'Name'
+    print(df.index)
+    print(df.to_dict(orient='records')[0])
+    df.columns = [str(x) for x in df.columns]
+    # time_between_stars = dbc.Table.from_dataframe(df,
+    #                                               striped=True,
+    #                                               bordered=True,
+    #                                               hover=True)
+    time_between_stars = dash.dash_table.DataTable(
+        columns=[{
+            "name": str(i),
+            "id": str(i),
+        } for i in df.columns],
+        data=df.to_dict('records'),
+        sort_action="native",
+        sort_mode="single",
+        style_cell={
+            'fontSize': 16,
+            'font-family': 'Source Sans Pro'
+        },
+        style_data={
+            'color': 'black',
+            'backgroundColor': 'white'
+        },
+        style_data_conditional=[{
+            'if': {
+                'row_index': 'odd'
+            },
+            'backgroundColor': 'rgba(0, 0, 0, 0.05)',
+        }],
+    )
 
     leaderboard_table_row = dbc.Row(
         [html.H3('Leaderboard Table By Day'), leaderboard_table])
@@ -117,7 +151,7 @@ def update_output(data_uploaded, interval):
     return [
         dcc.Graph(figure=aoc.line_graph()),
         dbc.Col([leaderboard_table_row, leaderboard_heatmap_row],
-                style={'padding': '20px'}), server_status
+                style={'padding': '20px'}), server_status, time_between_stars
     ]
 
 
