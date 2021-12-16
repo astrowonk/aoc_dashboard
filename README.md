@@ -10,3 +10,5 @@ The app is [running live on my web site](https://marcoshuerta.com/dash/aoc/), go
 Things to do:
 
 * Improve upon the very rudimentary layout. Not sure tabs are the best way to organize things.
+
+* If the data store is empty/missing an upload, show some sort of example data. (or perhaps a "load example data" button...)
