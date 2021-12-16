@@ -16,8 +16,8 @@ intro_text = """
 This dashboard is powered by the [AOC Scoreboard class](https://github.com/astrowonk/aoc_scoreboard) which processes and converts
 the json from the Advent of Code private dashboard API.
 
-The uploaded data is stored in a [dash core component Store](https://dash.plotly.com/dash-core-components/store) using local storage. 
-The json data is only stored on your own browser and is never saved on the server.
+Uploaded data is stored in a [dash core component Store](https://dash.plotly.com/dash-core-components/store) using local storage. 
+The json data is stored in browser storage and is never saved on the server.
 
 Source code is available on [Github](https://github.com/astrowonk/aoc_dashboard).
 
