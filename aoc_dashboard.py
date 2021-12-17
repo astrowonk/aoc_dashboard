@@ -4,6 +4,7 @@ import dash
 from dash.dependencies import Input, Output, State
 from dash import html, dcc
 import dash_bootstrap_components as dbc
+from dash.dash_table.Format import Format, Scheme
 from aoc_scoreboard import AOCScoreboard
 import plotly.express as px
 from os.path import getmtime
@@ -121,6 +122,7 @@ def update_output(data_uploaded, interval):
         columns=[{
             "name": str(i),
             "id": str(i),
+            'format': Format(precision=2, scheme=Scheme.fixed)
         } for i in df.columns],
         data=df.to_dict('records'),
         sort_action="native",
