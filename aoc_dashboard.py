@@ -122,7 +122,8 @@ def update_output(data_uploaded, interval):
         columns=[{
             "name": str(i),
             "id": str(i),
-            'format': Format(precision=2, scheme=Scheme.fixed)
+            'format': Format(precision=2, scheme=Scheme.fixed),
+            'type': 'numeric'
         } for i in df.columns],
         data=df.to_dict('records'),
         sort_action="native",
