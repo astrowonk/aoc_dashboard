@@ -111,13 +111,9 @@ def update_output(data_uploaded, interval):
     df = aoc.minutes_between_stars().round(2).reset_index()
 
     df.index.name = 'Name'
-    print(df.index)
-    print(df.to_dict(orient='records')[0])
+
     df.columns = [str(x) for x in df.columns]
-    # time_between_stars = dbc.Table.from_dataframe(df,
-    #                                               striped=True,
-    #                                               bordered=True,
-    #                                               hover=True)
+
     time_between_stars = dash.dash_table.DataTable(
         columns=[{
             "name": str(i),
