@@ -29,6 +29,7 @@ main_text = """
 
 """
 if config.server_mode == 'upload':
+    print("server mode upload")
     upload_widget = dcc.Upload(
         id='upload-data',
         children=[
@@ -55,7 +56,8 @@ else:
 
 main_interface = html.Div([
     dcc.Markdown(main_text, style=markdown_style),
-    html.Div(upload_widget, id='server-status'),
+    html.Div(upload_widget, style=markdown_style),
+    html.Div(id='server-status'),
     html.Div([html.Div([])]),
 ])
 

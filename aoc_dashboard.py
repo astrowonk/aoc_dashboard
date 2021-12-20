@@ -91,8 +91,7 @@ def update_output(data_uploaded, interval):
         server_status = dcc.Markdown(
             f"Server-side JSON last updated: {mytimestring}")
     elif config.server_mode == 'upload':
-        server_status = dcc.Markdown(
-            "Drag and drop or select a JSON file here to upload.")
+        server_status = None
 
     aoc = AOCScoreboard(json_dict=data)
     heatmap = px.imshow(
