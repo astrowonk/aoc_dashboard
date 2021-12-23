@@ -14,7 +14,7 @@ Things to do:
 
 * If the data store is empty/missing an upload, show some sort of example data. (or perhaps a "load example data" button...)
 
-* The dev branch has clickable column headers that link to the day's AoC problem and [bootstrap tooltips](https://dash-bootstrap-components.opensource.faculty.ai/docs/components/tooltip/) but requires my [Dash DataFrame Table](https://github.com/astrowonk/dash_dataframe_table) module so I'm not sure I'll merge to main yet.
+* The dev branch has clickable column headers that link to the day's AoC problem and [bootstrap tooltips](https://dash-bootstrap-components.opensource.faculty.ai/docs/components/tooltip/) but the former requires my [Dash DataFrame Table](https://github.com/astrowonk/dash_dataframe_table) module so I'm not sure I'll merge to main yet.
 
 # Sample Images
 
