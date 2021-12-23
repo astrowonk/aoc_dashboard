@@ -9,6 +9,7 @@ from aoc_scoreboard import AOCScoreboard
 import plotly.express as px
 from os.path import getmtime
 import datetime
+import dash_dataframe_table
 #from dash_bootstrap_templates import load_figure_template
 
 try:
@@ -100,13 +101,31 @@ def update_output(data_uploaded, interval):
         labels={'color': 'Points'},
         template=my_template,
     )
+    tooltip_map = {
+        'high':
+        "Score if player was the next to solve each star, achieving the high possible remaining points for each day.",
+        'low':
+        "Score if player was the last to solve each star, achieving the low possible remaining points for each day (2).",
+    }
 
-    leaderboard_table = dbc.Table.from_dataframe(
+    def format_header(x):
+        if str(x).isnumeric():
+            return html.A(
+                str(x),
+                href=f"https://adventofcode.com/{data['event']}/day/{x}")
+        else:
+            return html.Span(x, id=f"{x.lower().replace(' ','-')}-header")
+
+    leaderboard_df = aoc.make_daily_leaderboard().reset_index()
+    leaderboard_df.columns = [str(x) for x in leaderboard_df.columns]
+    print(leaderboard_df.columns)
+    leaderboard_table = dbc.Table.from_enhanced_dataframe(
         aoc.make_daily_leaderboard().reset_index(),
         striped=True,
         bordered=True,
         hover=True,
-    )
+        header_callable=format_header,
+        float_format='.0f')
     df = aoc.minutes_between_stars().round(2).reset_index()
 
     df.index.name = 'Name'
@@ -139,8 +158,17 @@ def update_output(data_uploaded, interval):
         }],
     )
 
-    leaderboard_table_row = dbc.Row(
-        [html.H3('Leaderboard Table By Day'), leaderboard_table])
+    leaderboard_table_row = dbc.Row([
+        html.H3('Leaderboard Table By Day'), leaderboard_table,
+        html.Div([
+            dbc.Tooltip(tooltip_map['high'],
+                        target='highest-possible-total-header',
+                        placement='top'),
+            dbc.Tooltip(tooltip_map['low'],
+                        target='lowest-possible-total-header',
+                        placement='top')
+        ])
+    ])
     leaderboard_heatmap_row = dbc.Row([
         html.H3('Points by Day Heatmap'),
         dcc.Graph(figure=heatmap),
