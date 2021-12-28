@@ -12,7 +12,7 @@ Clickable column headers that link to the day's AoC problem and [bootstrap toolt
 
 Things to do:
 
-* Improve upon the rudimentary layout. Not sure tabs are the best way to organize things.
+* Improve upon the rudimentary layout. Tabs may not be the best way to organize things.
 
 * If the data store is empty/missing an upload, show some sort of example data. (or perhaps a "load example data" button...)
 
