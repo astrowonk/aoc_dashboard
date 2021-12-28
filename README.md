@@ -7,6 +7,8 @@ Uses `dcc.Upload` and `dcc.Store` to load and store JSON from the AoC API, which
 
 With the default config file, the app will display an upload widge to accept uploaded JSON. Create your own `config.py` file if you wish to change settings to use server-side JSON and disable upload. Similarly you can change the base_url via the config file if self-hosting.
 
+Clickable column headers that link to the day's AoC problem and [bootstrap tooltips](https://dash-bootstrap-components.opensource.faculty.ai/docs/components/tooltip/) are courtesy of the callable one can pass to modify the header row courtesy my [Dash DataFrame Table](https://github.com/astrowonk/dash_dataframe_table) module, so if you want to deploy this yourself, you'll need to install that module as well.
+
 
 Things to do:
 
@@ -14,7 +16,6 @@ Things to do:
 
 * If the data store is empty/missing an upload, show some sort of example data. (or perhaps a "load example data" button...)
 
-* The dev branch has clickable column headers that link to the day's AoC problem and [bootstrap tooltips](https://dash-bootstrap-components.opensource.faculty.ai/docs/components/tooltip/) but the former requires my [Dash DataFrame Table](https://github.com/astrowonk/dash_dataframe_table) module so I'm not sure I'll merge to main yet.
 
 # Sample Images
 
