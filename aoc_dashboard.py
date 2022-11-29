@@ -17,6 +17,9 @@ try:
 except ImportError:
     import default_config as config
 
+from pathlib import Path
+parent_dir = Path().absolute().parent.stem
+
 my_template = 'plotly_white'
 
 #alas having server issues with the bootstrap templates, disabling for now.
@@ -29,7 +32,7 @@ app = dash.Dash(
     external_stylesheets=[dbc.themes.COSMO],
     prevent_initial_callbacks=True,
     suppress_callback_exceptions=True,
-    url_base_pathname=config.base_url,
+    url_base_pathname=config.base_url or f"/dash/{parent_dir}/",
     title='AOC Dashboard',
     meta_tags=[{
         'name': 'description',
