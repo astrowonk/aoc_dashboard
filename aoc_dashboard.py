@@ -18,7 +18,8 @@ except ImportError:
     import default_config as config
 
 from pathlib import Path
-parent_dir = Path().absolute().parent.stem
+
+parent_dir = Path().absolute().stem
 
 my_template = 'plotly_white'
 
