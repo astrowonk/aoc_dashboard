@@ -68,7 +68,17 @@ about_tab_content = html.Div(dcc.Markdown(
 
 line_graph_tab_content = html.Div(id='line-graph-div')
 daily_leadboard_content = html.Div(id='daily-leaderboard-div')
-time_between_stars = html.Div(id='time-between-stars-div')
+time_between_stars = dbc.Container([
+    dbc.Row(dcc.Dropdown(
+        ['Seconds', "Rank"],
+        id='time-between-stars-option',
+        value='Seconds',
+        clearable=False,
+        persistence=True,
+    ),
+            style=markdown_style),
+    dbc.Row(html.Div(id='time-between-stars-div'))
+])
 
 tabs = dbc.Tabs([
     dbc.Tab(daily_leadboard_content, label='Daily Leaderboard'),

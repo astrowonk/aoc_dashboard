@@ -4,12 +4,14 @@ import dash
 from dash.dependencies import Input, Output, State
 from dash import html, dcc
 import dash_bootstrap_components as dbc
+from dash.dash_table import FormatTemplate
 from dash.dash_table.Format import Format, Scheme
 from aoc_scoreboard import AOCScoreboard
 import plotly.express as px
 from os.path import getmtime
 import datetime
 import dash_dataframe_table
+import numpy as np
 #from dash_bootstrap_templates import load_figure_template
 
 try:
@@ -74,8 +76,9 @@ def update_output(content, name):
     Output('server-status', 'children'),
     Output('time-between-stars-div', 'children')
 ], Input('leaderboard-data', 'data'),
-              Input('server-storage-interval', 'n_intervals'))
-def update_output(data_uploaded, interval):
+              Input('server-storage-interval', 'n_intervals'),
+              Input('time-between-stars-option', 'value'))
+def update_output(data_uploaded, interval, stars_option):
     file_mod_time = None
     ctx = dash.callback_context
     an_id = ctx.triggered[0]['prop_id'].split('.')[0]
@@ -130,20 +133,27 @@ def update_output(data_uploaded, interval):
         hover=True,
         header_callable=format_header,
         float_format='.0f')
-    df = aoc.minutes_between_stars().round(2).reset_index()
+    df_stars = aoc.minutes_between_stars().round(2).reset_index()
 
-    df.index.name = 'Name'
+    df_stars.index.name = 'Name'
 
-    df.columns = [str(x) for x in df.columns]
-
+    df_stars.columns = [str(x) for x in df_stars.columns]
+    format = Format(precision=2, scheme=Scheme.fixed)
+    if stars_option == 'Rank':
+        format = Format()
+        cols = [x for x in df_stars.columns if x != 'Name']
+        for col in cols:
+            df_stars[col] = df_stars[col].rank()
+        df_stars.replace(0, np.NaN, inplace=True)
+        df_stars['Average Rank'] = df_stars[cols].mean(axis=1).round(2)
     time_between_stars = dash.dash_table.DataTable(
         columns=[{
             "name": str(i),
             "id": str(i),
-            'format': Format(precision=2, scheme=Scheme.fixed),
+            'format': format,
             'type': 'numeric'
-        } for i in df.columns],
-        data=df.to_dict('records'),
+        } for i in df_stars.columns],
+        data=df_stars.to_dict('records'),
         sort_action="native",
         sort_mode="single",
         style_cell={
