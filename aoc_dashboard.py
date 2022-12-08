@@ -142,9 +142,10 @@ def update_output(data_uploaded, interval, stars_option):
     if stars_option == 'Rank':
         format = Format()
         cols = [x for x in df_stars.columns if x != 'Name']
+        df_stars.replace(0, np.NaN, inplace=True)
+
         for col in cols:
             df_stars[col] = df_stars[col].rank()
-        df_stars.replace(0, np.NaN, inplace=True)
         df_stars['Average Rank'] = df_stars[cols].mean(axis=1).round(2)
     time_between_stars = dash.dash_table.DataTable(
         columns=[{
