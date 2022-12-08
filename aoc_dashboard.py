@@ -134,6 +134,7 @@ def update_output(data_uploaded, interval, stars_option):
         header_callable=format_header,
         float_format='.0f')
     df_stars = aoc.minutes_between_stars().round(2).reset_index()
+    df_stars.replace(0, np.NaN, inplace=True)
 
     df_stars.index.name = 'Name'
 
@@ -142,7 +143,6 @@ def update_output(data_uploaded, interval, stars_option):
     if stars_option == 'Rank':
         format = Format()
         cols = [x for x in df_stars.columns if x != 'Name']
-        df_stars.replace(0, np.NaN, inplace=True)
 
         for col in cols:
             df_stars[col] = df_stars[col].rank()
