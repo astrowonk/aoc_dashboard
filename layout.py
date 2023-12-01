@@ -70,9 +70,9 @@ line_graph_tab_content = html.Div(id='line-graph-div')
 daily_leadboard_content = html.Div(id='daily-leaderboard-div')
 time_between_stars = dbc.Container([
     dbc.Row(dcc.Dropdown(
-        ['Seconds', "Rank"],
+        ['Minutes', "Rank"],
         id='time-between-stars-option',
-        value='Seconds',
+        value='Minutes',
         clearable=False,
         persistence=True,
     ),
