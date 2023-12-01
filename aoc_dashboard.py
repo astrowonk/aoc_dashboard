@@ -133,12 +133,12 @@ def update_output(data_uploaded, interval, stars_option):
         hover=True,
         header_callable=format_header,
         float_format='.0f')
-    df_stars = aoc.minutes_between_stars().round(2).reset_index()
-    df_stars.replace(0, np.NaN, inplace=True)
+    df_stars = aoc.minutes_between_stars().round(2)
+    df_stars.columns = [f"Day {col}" for col in df_stars]
 
     df_stars.index.name = 'Name'
 
-    df_stars.columns = [str(x) for x in df_stars.columns]
+    df_stars.reset_index(inplace=True)
     format = Format(precision=2, scheme=Scheme.fixed)
     if stars_option == 'Rank':
         format = Format()
