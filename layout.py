@@ -67,13 +67,19 @@ try:
             thedata = json.load(fp=f)
             out[int(thedata['event'])] = j
     print(out)
+    out = sorted(out.items(), key=lambda x: -x[0])
+    print(out)
+    default = out[0][1]
     year_menu = dcc.Dropdown(
-        options={val: key for key, val in sorted(out.items(), key=lambda x: -x[0])},
+        clearable=False,
+        options={val: key for key, val in out},
+        value=default,
         persistence=True,
         persistence_type='local',
         id='year-menu',
     )
-except:
+except Exception as e:
+    print(e)
     year_menu = ''
 
 
