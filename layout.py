@@ -6,8 +6,11 @@ try:
 except ImportError:
     import default_config as config
 
+import glob
+import json
+
 markdown_style = {
-    "width": "100%",
+    'width': '100%',
     'margin': '10px',
 }
 
@@ -29,12 +32,12 @@ main_text = """
 
 """
 if config.server_mode == 'upload':
-    print("server mode upload")
+    print('server mode upload')
     upload_widget = dcc.Upload(
         id='upload-data',
         children=[
             'Drag and Drop or ',
-            html.A('Select a .json file from a private leaderboard')
+            html.A('Select a .json file from a private leaderboard'),
         ],
         style={
             #     'width': '100%',
@@ -44,57 +47,92 @@ if config.server_mode == 'upload':
             'borderStyle': 'dashed',
             'borderRadius': '15px',
             'textAlign': 'center',
-            'margin': '10px'
+            'margin': '10px',
         },
         #  Allow multiple files to be uploaded
         multiple=False,
-        max_size=
-        1.5E6  #1.5MB I think, this is based on the practical limits of dcc.Store, files should be well under this
+        max_size=1.5e6,  # 1.5MB I think, this is based on the practical limits of dcc.Store, files should be well under this
     )
 else:
-    upload_widget = html.Div(dcc.Markdown("Running in server-side data mode"))
+    upload_widget = html.Div(
+        dcc.Markdown('Running in server-side data mode'), id='markdown-div'
+    )
 
-main_interface = html.Div([
-    dcc.Markdown(main_text, style=markdown_style),
-    html.Div(upload_widget, style=markdown_style),
-    html.Div(id='server-status'),
-    html.Div([html.Div([])]),
-])
+print('year selector updating')
+try:
+    thedir = config.json_dir
+    out = {}
+    for j in glob.glob(f'{thedir}/*.json'):
+        with open(j, 'r') as f:
+            thedata = json.load(fp=f)
+            out[int(thedata['event'])] = j
+    print(out)
+    year_menu = dcc.Dropdown(
+        options={val: key for key, val in sorted(out.items(), key=lambda x: -x[0])},
+        persistence=True,
+        persistence_type='local',
+        id='year-menu',
+    )
+except:
+    year_menu = ''
 
-about_tab_content = html.Div(dcc.Markdown(
-    intro_text,
-    style=markdown_style,
-))
+
+main_interface = html.Div(
+    [
+        dcc.Markdown(main_text, style=markdown_style),
+        html.Div(upload_widget, style=markdown_style),
+        html.Div(id='server-status'),
+        html.Div([html.Div([])]),
+        html.Div(year_menu),
+    ],
+    id='main-interface-div',
+)
+
+about_tab_content = html.Div(
+    dcc.Markdown(
+        intro_text,
+        style=markdown_style,
+    )
+)
 
 line_graph_tab_content = html.Div(id='line-graph-div')
 daily_leadboard_content = html.Div(id='daily-leaderboard-div')
-time_between_stars = dbc.Container([
-    dbc.Row(dcc.Dropdown(
-        ['Minutes', "Rank"],
-        id='time-between-stars-option',
-        value='Minutes',
-        clearable=False,
-        persistence=True,
-    ),
-            style=markdown_style),
-    dbc.Row(html.Div(id='time-between-stars-div'))
-])
+time_between_stars = dbc.Container(
+    [
+        dbc.Row(
+            dcc.Dropdown(
+                ['Minutes', 'Rank'],
+                id='time-between-stars-option',
+                value='Minutes',
+                clearable=False,
+                persistence=True,
+            ),
+            style=markdown_style,
+        ),
+        dbc.Row(html.Div(id='time-between-stars-div')),
+    ]
+)
 
-tabs = dbc.Tabs([
-    dbc.Tab(daily_leadboard_content, label='Daily Leaderboard'),
-    dbc.Tab(line_graph_tab_content, label='Line Graph'),
-    dbc.Tab(time_between_stars, label='Minutes Between Stars'),
-    dbc.Tab(about_tab_content, label="About"),
-])
+tabs = dbc.Tabs(
+    [
+        dbc.Tab(daily_leadboard_content, label='Daily Leaderboard'),
+        dbc.Tab(line_graph_tab_content, label='Line Graph'),
+        dbc.Tab(time_between_stars, label='Minutes Between Stars'),
+        dbc.Tab(about_tab_content, label='About'),
+    ]
+)
 
-layout = dbc.Container([
-    dcc.Store(id='leaderboard-data', storage_type='local'),
-    main_interface,
-    dbc.Row(dbc.Col((tabs))),
-    html.Div(id='dummy'),
-    dcc.Interval(
-        id='server-storage-interval',
-        # 5 minutes
-        interval=1000 * 60 * 5,
-        n_intervals=0),
-])
+layout = dbc.Container(
+    [
+        dcc.Store(id='leaderboard-data', storage_type='local'),
+        main_interface,
+        dbc.Row(dbc.Col((tabs))),
+        html.Div(id='dummy'),
+        dcc.Interval(
+            id='server-storage-interval',
+            # 5 minutes
+            interval=1000 * 60 * 5,
+            n_intervals=0,
+        ),
+    ]
+)

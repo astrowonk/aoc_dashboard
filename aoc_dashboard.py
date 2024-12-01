@@ -12,7 +12,8 @@ from os.path import getmtime
 import datetime
 import dash_dataframe_table
 import numpy as np
-#from dash_bootstrap_templates import load_figure_template
+import glob
+# from dash_bootstrap_templates import load_figure_template
 
 try:
     import config
@@ -25,8 +26,8 @@ parent_dir = Path().absolute().stem
 
 my_template = 'plotly_white'
 
-#alas having server issues with the bootstrap templates, disabling for now.
-#load_figure_template(my_template)
+# alas having server issues with the bootstrap templates, disabling for now.
+# load_figure_template(my_template)
 
 from layout import layout
 
@@ -35,20 +36,16 @@ app = dash.Dash(
     external_stylesheets=[dbc.themes.COSMO],
     prevent_initial_callbacks=True,
     suppress_callback_exceptions=True,
-    url_base_pathname=config.base_url or f"/dash/{parent_dir}/",
+    url_base_pathname=config.base_url or f'/dash/{parent_dir}/',
     title='AOC Dashboard',
-    meta_tags=[{
-        'name': 'description',
-        'content': 'AOC Leaderboard JSON to HTML Dashboard'
-    }, {
-        'name':
-        'keywords',
-        'content':
-        'advent of code, json, dashboard, leaderboard, aoc, aoc2019, aoc2020'
-    }, {
-        "name": "viewport",
-        "content": "width=device-width, initial-scale=1"
-    }],
+    meta_tags=[
+        {'name': 'description', 'content': 'AOC Leaderboard JSON to HTML Dashboard'},
+        {
+            'name': 'keywords',
+            'content': 'advent of code, json, dashboard, leaderboard, aoc, aoc2019, aoc2020',
+        },
+        {'name': 'viewport', 'content': 'width=device-width, initial-scale=1'},
+    ],
 )
 
 server = app.server
@@ -70,15 +67,20 @@ def update_output(content, name):
         return dash.no_update
 
 
-@app.callback([
-    Output('line-graph-div', 'children'),
-    Output('daily-leaderboard-div', 'children'),
-    Output('server-status', 'children'),
-    Output('time-between-stars-div', 'children')
-], Input('leaderboard-data', 'data'),
-              Input('server-storage-interval', 'n_intervals'),
-              Input('time-between-stars-option', 'value'))
-def update_output(data_uploaded, interval, stars_option):
+@app.callback(
+    [
+        Output('line-graph-div', 'children'),
+        Output('daily-leaderboard-div', 'children'),
+        Output('server-status', 'children'),
+        Output('time-between-stars-div', 'children'),
+    ],
+    Input('leaderboard-data', 'data'),
+    Input('server-storage-interval', 'n_intervals'),
+    Input('time-between-stars-option', 'value'),
+    Input('year-menu', 'value'),
+)
+def update_output(data_uploaded, interval, stars_option, year_file):
+    print(year_file)
     file_mod_time = None
     ctx = dash.callback_context
     an_id = ctx.triggered[0]['prop_id'].split('.')[0]
@@ -88,38 +90,31 @@ def update_output(data_uploaded, interval, stars_option):
     if config.server_mode == 'upload' and data_uploaded:
         data = data_uploaded
     elif config.server_mode == 'local':
-        data = json.loads(open(config.json_file).read())
-        file_mod_time = datetime.datetime.fromtimestamp(
-            getmtime(config.json_file))
+        data = json.loads(open(year_file).read())
+        file_mod_time = datetime.datetime.fromtimestamp(getmtime(year_file))
     else:
         return dash.no_update
 
     if file_mod_time:
         mytimestring = file_mod_time.strftime('%Y-%m-%d %H:%M:%S')
-        server_status = dcc.Markdown(
-            f"Server-side JSON last updated: {mytimestring}")
+        server_status = dcc.Markdown(f'Server-side JSON last updated: {mytimestring}')
     elif config.server_mode == 'upload':
         server_status = None
 
     aoc = AOCScoreboard(json_dict=data)
     heatmap = px.imshow(
-        aoc.make_daily_leaderboard(show_possibles=False).drop(
-            columns=['Total']).fillna(0),
+        aoc.make_daily_leaderboard(show_possibles=False).drop(columns=['Total']).fillna(0),
         labels={'color': 'Points'},
         template=my_template,
     )
     tooltip_map = {
-        'high':
-        "Score if player was the next to solve each star, achieving the high possible remaining points for each day.",
-        'low':
-        "Score if player was the last to solve each star, achieving the low possible remaining points for each day (2).",
+        'high': 'Score if player was the next to solve each star, achieving the high possible remaining points for each day.',
+        'low': 'Score if player was the last to solve each star, achieving the low possible remaining points for each day (2).',
     }
 
     def format_header(x):
         if str(x).isnumeric():
-            return html.A(
-                str(x),
-                href=f"https://adventofcode.com/{data['event']}/day/{x}")
+            return html.A(str(x), href=f"https://adventofcode.com/{data['event']}/day/{x}")
         else:
             return html.Span(x, id=f"{x.lower().replace(' ','-')}-header")
 
@@ -132,9 +127,10 @@ def update_output(data_uploaded, interval, stars_option):
         bordered=True,
         hover=True,
         header_callable=format_header,
-        float_format='.0f')
+        float_format='.0f',
+    )
     df_stars = aoc.minutes_between_stars().round(2)
-    df_stars.columns = [f"Day {col}" for col in df_stars]
+    df_stars.columns = [f'Day {col}' for col in df_stars]
 
     df_stars.index.name = 'Name'
 
@@ -148,51 +144,55 @@ def update_output(data_uploaded, interval, stars_option):
             df_stars[col] = df_stars[col].rank()
         df_stars['Average Rank'] = df_stars[cols].mean(axis=1).round(2)
     time_between_stars = dash.dash_table.DataTable(
-        columns=[{
-            "name": str(i),
-            "id": str(i),
-            'format': format,
-            'type': 'numeric'
-        } for i in df_stars.columns],
+        columns=[
+            {'name': str(i), 'id': str(i), 'format': format, 'type': 'numeric'}
+            for i in df_stars.columns
+        ],
         data=df_stars.to_dict('records'),
-        sort_action="native",
-        sort_mode="single",
-        style_cell={
-            'fontSize': 16,
-            'font-family': 'Source Sans Pro'
-        },
-        style_data={
-            'color': 'black',
-            'backgroundColor': 'white'
-        },
-        style_data_conditional=[{
-            'if': {
-                'row_index': 'odd'
-            },
-            'backgroundColor': 'rgba(0, 0, 0, 0.05)',
-        }],
+        sort_action='native',
+        sort_mode='single',
+        style_cell={'fontSize': 16, 'font-family': 'Source Sans Pro'},
+        style_data={'color': 'black', 'backgroundColor': 'white'},
+        style_data_conditional=[
+            {
+                'if': {'row_index': 'odd'},
+                'backgroundColor': 'rgba(0, 0, 0, 0.05)',
+            }
+        ],
     )
 
-    leaderboard_table_row = dbc.Row([
-        html.H3('Leaderboard Table By Day'), leaderboard_table,
-        html.Div([
-            dbc.Tooltip(tooltip_map['high'],
+    leaderboard_table_row = dbc.Row(
+        [
+            html.H3('Leaderboard Table By Day'),
+            leaderboard_table,
+            html.Div(
+                [
+                    dbc.Tooltip(
+                        tooltip_map['high'],
                         target='highest-possible-total-header',
-                        placement='top'),
-            dbc.Tooltip(tooltip_map['low'],
+                        placement='top',
+                    ),
+                    dbc.Tooltip(
+                        tooltip_map['low'],
                         target='lowest-possible-total-header',
-                        placement='top')
-        ])
-    ])
-    leaderboard_heatmap_row = dbc.Row([
-        html.H3('Points by Day Heatmap'),
-        dcc.Graph(figure=heatmap),
-    ])
+                        placement='top',
+                    ),
+                ]
+            ),
+        ]
+    )
+    leaderboard_heatmap_row = dbc.Row(
+        [
+            html.H3('Points by Day Heatmap'),
+            dcc.Graph(figure=heatmap),
+        ]
+    )
 
     return [
         dcc.Graph(figure=aoc.line_graph()),
-        dbc.Col([leaderboard_table_row, leaderboard_heatmap_row],
-                style={'padding': '20px'}), server_status, time_between_stars
+        dbc.Col([leaderboard_table_row, leaderboard_heatmap_row], style={'padding': '20px'}),
+        server_status,
+        time_between_stars,
     ]
 
 
